@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propuesta San Valentín</title>
+  <style>
+    /* Fondo y estilo general */
+    body {
+      background: linear-gradient(135deg, #f7f7f7, #ffeef8);
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+    /* Contenedor principal */
+    .container {
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    /* Título con animación de fade in */
+    h1 {
+      font-size: 2em;
+      color: #333;
+      margin-bottom: 20px;
+      animation: fadeIn 2s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Estilo del sticker/gif */
+    .sticker {
+      width: 200px;
+      height: auto;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .sticker:hover {
+      transform: scale(1.05);
+    }
+    /* Contenedor de botones */
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    #yes {
+      background: #4CAF50;
+      color: white;
+    }
+    #yes:hover {
+      background: #45a049;
+    }
+    /* El botón "No" se moverá cuando se intente interactuar */
+    #no {
+      background: #f44336;
+      color: white;
+      position: relative;
+      transition: left 0.2s, top 0.2s;
+    }
+    #no:hover {
+      background: #e53935;
+    }
+    /* Contenedor para la lluvia de emojis */
+    .emoji-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Contenedor para la lluvia de emojis -->
+  <div class="emoji-container" id="emojiContainer"></div>
+
+  <div class="container">
+    <h1>Carla, ¿quieres ser mi San Valentín?</h1>
+    <!-- Sticker interactivo: al hacer clic, cambia de imagen -->
+    <img src="https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTAxNWwxdGd1ZTA0bjd3dXcxaXZkdXJja2RmZW5ndmc3bm1xZ3BmaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/yyPVWkSHAKWlcAxC7i/giphy.gif" 
+         alt="Sticker animado" class="sticker" id="stickerImage">
+    <div class="buttons">
+      <!-- El botón "Sí" redirige a flower.html -->
+      <button id="yes">Sí</button>
+      <!-- El botón "No" se moverá al intentar interactuar -->
+      <button id="no">No</button>
+    </div>
+  </div>
+
+  <script>
+    /* --- Colección de stickers (GIFs) --- */
+    const stickers = [
+      "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTAxNWwxdGd1ZTA0bjd3dXcxaXZkdXJja2RmZW5ndmc3bm1xZ3BmaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/yyPVWkSHAKWlcAxC7i/giphy.gif",
+      "https://media.giphy.com/media/KYLMyz5Jmu1nqBVZl3/giphy.gif",
+      "https://media.giphy.com/media/reSYcvC7X20nGOZggH/giphy.gif",
+      "https://media.giphy.com/media/4JK7mDC2fgjhohhMiO/giphy.gif",
+      "https://media.giphy.com/media/szvBCVp2WQwnx9wrKM/giphy.gif",
+      "https://media.giphy.com/media/jHGJhWeK3PFQ2LSnU4/giphy.gif",
+      "https://media.giphy.com/media/EqcmVFTlktnI73eLnN/giphy.gif",
+      "https://media.giphy.com/media/HJlk5bz1hPLp1v2o3o/giphy.gif",
+      "https://media.giphy.com/media/ctuB3d710DPsYF2L4o/giphy.gif",
+      "https://media.giphy.com/media/pxehmc8vOhEV8UeuLy/giphy.gif"
+    ];
+    let currentSticker = 0;
+    const stickerImage = document.getElementById('stickerImage');
+    stickerImage.addEventListener('click', function() {
+      currentSticker = (currentSticker + 1) % stickers.length;
+      stickerImage.src = stickers[currentSticker];
+    });
+
+    /* --- Variables y comportamiento para el botón "Sí" --- */
+    const yesButton = document.getElementById('yes');
+    let yesScale = 1.0;
+
+    /* --- Función para reposicionar el botón "No" dentro de un área centrada --- */
+    function repositionNoButton(e) {
+      // Obtenemos el centro de la ventana
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      // Definimos un máximo de desplazamiento (en píxeles) respecto al centro
+      const maxOffset = 150;
+      // Generamos desplazamientos aleatorios dentro de [-maxOffset, maxOffset]
+      const offsetX = (Math.random() * 2 * maxOffset) - maxOffset;
+      const offsetY = (Math.random() * 2 * maxOffset) - maxOffset;
+      // Calculamos la nueva posición del botón "No"
+      const newLeft = centerX + offsetX - noButton.offsetWidth / 2;
+      const newTop = centerY + offsetY - noButton.offsetHeight / 2;
+      
+      noButton.style.position = 'absolute';
+      noButton.style.left = newLeft + 'px';
+      noButton.style.top = newTop + 'px';
+
+      // Cambiar el sticker al siguiente
+      currentSticker = (currentSticker + 1) % stickers.length;
+      stickerImage.src = stickers[currentSticker];
+
+      // Aumentar ligeramente el tamaño del botón "Sí"
+      yesScale += 0.09;
+      yesButton.style.transform = "scale(" + yesScale + ")";
+    }
+
+    /* --- Eventos para el botón "No" --- */
+    const noButton = document.getElementById('no');
+    noButton.addEventListener('mouseover', repositionNoButton);
+    noButton.addEventListener('touchstart', function(e) {
+      e.preventDefault(); // Evitar comportamientos táctiles por defecto
+      repositionNoButton(e);
+    });
+
+    /* --- Redirección del botón "Sí" --- */
+    yesButton.addEventListener('click', function() {
+      window.location.href = 'flower.html';
+    });
+
+    /* --- Función para iniciar la lluvia de emojis (con tus tiempos actuales) --- */
+    function startEmojiRain() {
+      const emojiContainer = document.getElementById('emojiContainer');
+      const emojis = ['💛', '🌻'];
+      // Generamos 30 emojis
+      for (let i = 0; i < 30; i++) {
+        const emoji = document.createElement('div');
+        emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        emoji.style.position = 'absolute';
+        emoji.style.fontSize = (Math.random() * 20 + 20) + 'px';
+        emoji.style.left = Math.random() * 100 + 'vw';
+        emoji.style.top = '-50px';
+        emoji.style.opacity = Math.random();
+        emoji.style.transform = `rotate(${Math.random() * 360}deg)`;
+        emojiContainer.appendChild(emoji);
+
+        const duration = Math.random() * 3 + 9;
+        emoji.animate([
+          { transform: `translateY(0) rotate(${Math.random() * 360}deg)`, opacity: 1 },
+          { transform: `translateY(110vh) rotate(${Math.random() * 360 + 360}deg)`, opacity: 0 }
+        ], {
+          duration: duration * 2000,
+          iterations: 1,
+          easing: 'linear'
+        });
+      }
+      // Se limpia el contenedor después de 90 segundos
+      setTimeout(() => {
+        emojiContainer.innerHTML = '';
+      }, 90000);
+    }
+    // Iniciar la lluvia de emojis de forma continua cada 3 segundos
+    setInterval(startEmojiRain, 3000);
+  </script>
+</body>
+</html>
